@@ -181,6 +181,7 @@ ASpikes::ASpikes()
 	DamageArea->SetupAttachment(RootComponent);
 	DamageArea->SetRelativeLocation(FVector(0.f, 0.f, -Half + 20.f));
 	DamageArea->SetBoxExtent(FVector(Half - 8.f, Half, 20.f));
+	DamageArea->SetCollisionObjectType(ECC_WorldDynamic);
 	DamageArea->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	DamageArea->SetCollisionResponseToAllChannels(ECR_Ignore);
 	DamageArea->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);

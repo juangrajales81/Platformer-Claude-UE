@@ -8,6 +8,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputAction.h"
@@ -274,9 +276,10 @@ void APlatformerCharacter::Tick(float DeltaSeconds)
 	if (InvulnerableTime > 0.f)
 	{
 		InvulnerableTime -= DeltaSeconds;
-		// Parpadeo mientras dura la invulnerabilidad.
+		// Parpadeo mientras dura la invulnerabilidad. Se oculta el actor entero para no
+		// alterar la visibilidad propia de cada pieza (p. ej. el pelo de punta).
 		const bool bVisible = InvulnerableTime <= 0.f || FMath::Fmod(InvulnerableTime, 0.2f) > 0.1f;
-		VisualRoot->SetVisibility(bVisible, true);
+		SetActorHiddenInGame(!bVisible);
 	}
 }
 
@@ -312,7 +315,7 @@ void APlatformerCharacter::Die(bool bJumpOut)
 	}
 	bDead = true;
 	InvulnerableTime = 0.f;
-	VisualRoot->SetVisibility(true, true);
+	SetActorHiddenInGame(false);
 
 	if (APlayerController* PC = Cast<APlayerController>(Controller))
 	{
@@ -341,7 +344,7 @@ void APlatformerCharacter::CelebrateGoal()
 		DisableInput(PC);
 	}
 	InvulnerableTime = 0.f;
-	VisualRoot->SetVisibility(true, true);
+	SetActorHiddenInGame(false);
 	GetCharacterMovement()->StopMovementImmediately();
 	LaunchCharacter(FVector(0.f, 0.f, 600.f), true, true);
 }

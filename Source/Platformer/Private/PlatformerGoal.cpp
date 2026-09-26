@@ -18,6 +18,7 @@ APlatformerGoal::APlatformerGoal()
 	Trigger->SetupAttachment(RootComponent);
 	Trigger->SetRelativeLocation(FVector(0.f, 0.f, Base + 150.f));
 	Trigger->SetBoxExtent(FVector(40.f, 100.f, 150.f));
+	Trigger->SetCollisionObjectType(ECC_WorldDynamic);
 	Trigger->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Trigger->SetCollisionResponseToAllChannels(ECR_Ignore);
 	Trigger->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);

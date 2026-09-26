@@ -15,6 +15,8 @@ APickup::APickup()
 
 	Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
 	Collision->InitSphereRadius(35.f);
+	// Dinámico: las trazas de los enemigos (solo objetos estáticos) no deben verlo como pared.
+	Collision->SetCollisionObjectType(ECC_WorldDynamic);
 	Collision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Collision->SetCollisionResponseToAllChannels(ECR_Ignore);
 	Collision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);

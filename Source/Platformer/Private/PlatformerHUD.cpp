@@ -2,6 +2,7 @@
 #include "PlatformerCharacter.h"
 #include "PlatformerGameMode.h"
 #include "Engine/Canvas.h"
+#include "Engine/World.h"
 #include "Engine/Engine.h"
 #include "Engine/Font.h"
 

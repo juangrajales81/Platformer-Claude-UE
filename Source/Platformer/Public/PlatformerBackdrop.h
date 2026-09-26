@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "PlatformerBackdrop.generated.h"
 
+class UStaticMesh;
 class UStaticMeshComponent;
 
 /** Una capa del fondo: se desplaza con la cámara a una fracción de su velocidad. */

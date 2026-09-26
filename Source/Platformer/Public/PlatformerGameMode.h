@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/TimerHandle.h"
 #include "GameFramework/GameModeBase.h"
 #include "LevelBuilder.h"
 #include "PlatformerGameMode.generated.h"
