@@ -1,11 +1,13 @@
 #include "PlatformerBlocks.h"
 #include "PlatformerCharacter.h"
+#include "PlatformerEnemy.h"
 #include "PlatformerGameMode.h"
 #include "PlatformerPickups.h"
 #include "PlatformerVisuals.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/CollisionProfile.h"
+#include "Engine/OverlapResult.h"
 #include "Engine/World.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -40,6 +42,19 @@ void APlatformerBlock::BeginPlay()
 void APlatformerBlock::HitFromBelow(APlatformerCharacter* Player)
 {
 	Bump();
+
+	// Como en los clásicos: el golpe elimina a los enemigos que estén encima del bloque.
+	TArray<FOverlapResult> Overlaps;
+	const FVector Above = GetActorLocation() + FVector(0.f, 0.f, PlatformerVisuals::TileSize * 0.6f);
+	const FCollisionShape Shape = FCollisionShape::MakeBox(FVector(45.f, 50.f, 20.f));
+	GetWorld()->OverlapMultiByObjectType(Overlaps, Above, FQuat::Identity, FCollisionObjectQueryParams(ECC_Pawn), Shape);
+	for (const FOverlapResult& Overlap : Overlaps)
+	{
+		if (AEnemyWalker* Enemy = Cast<AEnemyWalker>(Overlap.GetActor()))
+		{
+			Enemy->Kill(false);
+		}
+	}
 }
 
 void APlatformerBlock::Bump()

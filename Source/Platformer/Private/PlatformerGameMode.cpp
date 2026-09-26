@@ -36,6 +36,16 @@ void APlatformerGameMode::HandleStartingNewPlayer_Implementation(APlayerControll
 	}
 }
 
+void APlatformerGameMode::OnPlayerDied(APlatformerCharacter* Player)
+{
+	AController* PlayerController = Player->GetController();
+	Player->Destroy();
+	if (PlayerController)
+	{
+		SpawnPlayer(PlayerController);
+	}
+}
+
 void APlatformerGameMode::AddScore(int32 Points)
 {
 	Score += Points;

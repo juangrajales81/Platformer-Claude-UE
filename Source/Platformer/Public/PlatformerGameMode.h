@@ -17,6 +17,9 @@ public:
 	virtual void StartPlay() override;
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
+	/** Lo llama la jugadora al terminar su animación de muerte. */
+	virtual void OnPlayerDied(class APlatformerCharacter* Player);
+
 	void AddScore(int32 Points);
 	void AddDiamond();
 

@@ -1,5 +1,6 @@
 #include "PlatformerCharacter.h"
 #include "PlatformerBlocks.h"
+#include "PlatformerGameMode.h"
 #include "PlatformerVisuals.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -11,6 +12,7 @@
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "InputModifiers.h"
+#include "TimerManager.h"
 
 APlatformerCharacter::APlatformerCharacter()
 {
@@ -170,5 +172,79 @@ void APlatformerCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other,
 		{
 			Block->HitFromBelow(this);
 		}
+	}
+}
+
+void APlatformerCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (InvulnerableTime > 0.f)
+	{
+		InvulnerableTime -= DeltaSeconds;
+		// Parpadeo mientras dura la invulnerabilidad.
+		const bool bVisible = InvulnerableTime <= 0.f || FMath::Fmod(InvulnerableTime, 0.2f) > 0.1f;
+		VisualRoot->SetVisibility(bVisible, true);
+	}
+}
+
+void APlatformerCharacter::ReceiveDamage()
+{
+	if (bDead || IsInvulnerable())
+	{
+		return;
+	}
+
+	if (PowerLevel > 0)
+	{
+		PowerLevel = 0;
+		InvulnerableTime = 2.f;
+	}
+	else
+	{
+		Die();
+	}
+}
+
+void APlatformerCharacter::BounceOffEnemy()
+{
+	LaunchCharacter(FVector(0.f, 0.f, 750.f), false, true);
+}
+
+void APlatformerCharacter::Die()
+{
+	if (bDead)
+	{
+		return;
+	}
+	bDead = true;
+	InvulnerableTime = 0.f;
+	VisualRoot->SetVisibility(true, true);
+
+	if (APlayerController* PC = Cast<APlayerController>(Controller))
+	{
+		DisableInput(PC);
+	}
+
+	// Animación clásica: salta hacia arriba y cae atravesando el escenario.
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	Movement->SetMovementMode(MOVE_Falling);
+	Movement->Velocity = FVector(0.f, 0.f, 900.f);
+	// La cámara se queda quieta mientras la jugadora cae.
+	const FVector BoomLocation = CameraBoom->GetComponentLocation();
+	CameraBoom->bEnableCameraLag = false;
+	CameraBoom->SetUsingAbsoluteLocation(true);
+	CameraBoom->SetWorldLocation(BoomLocation);
+
+	FTimerHandle Handle;
+	GetWorldTimerManager().SetTimer(Handle, this, &APlatformerCharacter::FinishDying, 2.f);
+}
+
+void APlatformerCharacter::FinishDying()
+{
+	if (APlatformerGameMode* GameMode = GetWorld()->GetAuthGameMode<APlatformerGameMode>())
+	{
+		GameMode->OnPlayerDied(this);
 	}
 }

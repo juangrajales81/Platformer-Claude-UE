@@ -27,6 +27,18 @@ public:
 	int32 GetPowerLevel() const { return PowerLevel; }
 	bool CanBreakBricks() const { return PowerLevel >= 1; }
 	bool IsDead() const { return bDead; }
+	bool IsInvulnerable() const { return InvulnerableTime > 0.f; }
+
+	/** Golpe de un enemigo o de unos pinchos: pierde el poder o muere. */
+	void ReceiveDamage();
+
+	/** Muerte inmediata (p. ej. al caer a un foso). */
+	void Die();
+
+	/** Pequeño salto automático tras pisar a un enemigo. */
+	void BounceOffEnemy();
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
 		FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
@@ -37,6 +49,9 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	void Move(const FInputActionValue& Value);
+
+	/** Avisa al GameMode cuando termina la animación de muerte. */
+	void FinishDying();
 
 	/** Crea las acciones y el mapeo de teclas la primera vez que se necesitan. */
 	void CreateInputObjects();
@@ -73,6 +88,9 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, Category = "State")
 	bool bDead = false;
+
+	/** Segundos restantes de invulnerabilidad tras recibir un golpe. */
+	float InvulnerableTime = 0.f;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UInputMappingContext> MappingContext;

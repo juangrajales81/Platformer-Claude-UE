@@ -1,6 +1,7 @@
 #include "LevelBuilder.h"
 #include "Platformer.h"
 #include "PlatformerBlocks.h"
+#include "PlatformerEnemy.h"
 #include "PlatformerPickups.h"
 #include "PlatformerVisuals.h"
 #include "Components/BoxComponent.h"
@@ -181,6 +182,13 @@ void ALevelBuilder::SpawnCellActor(TCHAR Cell, const FVector& Location, FBuiltLe
 		break;
 	case TEXT('D'):
 		SpawnLevelActor<ADiamond>(Location);
+		break;
+	case TEXT('E'):
+		// Se baja a ras de suelo: la cápsula del enemigo es más baja que una celda.
+		SpawnLevelActor<AEnemyWalker>(Location - FVector(0.f, 0.f, 10.f));
+		break;
+	case TEXT('^'):
+		SpawnLevelActor<ASpikes>(Location);
 		break;
 	default:
 		UE_LOG(LogPlatformer, Warning, TEXT("Carácter de nivel desconocido '%c'"), Cell);
