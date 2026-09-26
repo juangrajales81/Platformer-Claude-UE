@@ -1,5 +1,7 @@
 #include "LevelBuilder.h"
 #include "Platformer.h"
+#include "PlatformerBlocks.h"
+#include "PlatformerPickups.h"
 #include "PlatformerVisuals.h"
 #include "Components/BoxComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
@@ -170,6 +172,15 @@ void ALevelBuilder::SpawnCellActor(TCHAR Cell, const FVector& Location, FBuiltLe
 		break;
 	case TEXT('G'):
 		Info.GoalLocation = Location;
+		break;
+	case TEXT('B'):
+		SpawnLevelActor<ABrickBlock>(Location);
+		break;
+	case TEXT('?'):
+		SpawnLevelActor<ABonusBlock>(Location);
+		break;
+	case TEXT('D'):
+		SpawnLevelActor<ADiamond>(Location);
 		break;
 	default:
 		UE_LOG(LogPlatformer, Warning, TEXT("Carácter de nivel desconocido '%c'"), Cell);

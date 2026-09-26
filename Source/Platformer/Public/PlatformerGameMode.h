@@ -17,6 +17,12 @@ public:
 	virtual void StartPlay() override;
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
+	void AddScore(int32 Points);
+	void AddDiamond();
+
+	int32 GetScore() const { return Score; }
+	int32 GetDiamonds() const { return Diamonds; }
+
 protected:
 	/** Construye el escenario. Los jugadores no aparecen hasta que termina. */
 	virtual void BuildWorld();
@@ -31,6 +37,9 @@ protected:
 
 	FBuiltLevelInfo CurrentLevelInfo;
 	int32 CurrentLevel = 1;
+
+	int32 Score = 0;
+	int32 Diamonds = 0;
 
 private:
 	bool bWorldReady = false;

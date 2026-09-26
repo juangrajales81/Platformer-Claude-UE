@@ -10,7 +10,7 @@ formas básicas del motor (`/Engine/BasicShapes`). Así cada fase es fácil de r
 | 1 | Estructura del proyecto (`.uproject`, módulo C++, targets, config, scripts) | ✅ |
 | 2 | Personaje jugable: movimiento lateral, salto variable, cámara 2.5D, controles, luz y cielo | ✅ |
 | 3 | Constructor de niveles a partir de mapas ASCII (nivel 1: terreno) | ✅ |
-| 4 | Bloques interactivos (ladrillos, bloques bonus) y diamantes | ⬜ |
+| 4 | Bloques interactivos (ladrillos, bloques bonus) y diamantes | ✅ |
 | 5 | Enemigos: patrulla, pisotón y daño al jugador | ⬜ |
 | 6 | Power-ups: "punk" (rompe ladrillos) y "fuego" (dispara burbujas) | ⬜ |
 | 7 | Reglas de juego y HUD: vidas, puntos, tiempo, muerte, meta, game over | ⬜ |

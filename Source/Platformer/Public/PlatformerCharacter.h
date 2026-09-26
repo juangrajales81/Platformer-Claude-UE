@@ -23,6 +23,14 @@ class PLATFORMER_API APlatformerCharacter : public ACharacter
 public:
 	APlatformerCharacter();
 
+	/** Nivel de poder: 0 normal, 1 "punk" (rompe ladrillos), 2 "fuego" (dispara). */
+	int32 GetPowerLevel() const { return PowerLevel; }
+	bool CanBreakBricks() const { return PowerLevel >= 1; }
+	bool IsDead() const { return bDead; }
+
+	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
+		FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void NotifyControllerChanged() override;
@@ -59,6 +67,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Visual")
 	TObjectPtr<UStaticMeshComponent> RightEyeMesh;
+
+	UPROPERTY(VisibleInstanceOnly, Category = "State")
+	int32 PowerLevel = 0;
+
+	UPROPERTY(VisibleInstanceOnly, Category = "State")
+	bool bDead = false;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UInputMappingContext> MappingContext;

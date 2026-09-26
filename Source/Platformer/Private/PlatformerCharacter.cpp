@@ -1,4 +1,5 @@
 #include "PlatformerCharacter.h"
+#include "PlatformerBlocks.h"
 #include "PlatformerVisuals.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -155,4 +156,19 @@ void APlatformerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 void APlatformerCharacter::Move(const FInputActionValue& Value)
 {
 	AddMovementInput(FVector::ForwardVector, Value.Get<float>());
+}
+
+void APlatformerCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
+	FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+{
+	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+
+	// Golpe con la cabeza: la normal del impacto apunta hacia abajo.
+	if (bSelfMoved && Hit.ImpactNormal.Z < -0.5f)
+	{
+		if (APlatformerBlock* Block = Cast<APlatformerBlock>(Other))
+		{
+			Block->HitFromBelow(this);
+		}
+	}
 }

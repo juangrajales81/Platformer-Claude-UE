@@ -15,5 +15,8 @@ Se cargan en orden; al terminar el último, la partida está ganada.
 | `.` o espacio | Vacío |
 | `#` | Suelo (hierba en la superficie, tierra debajo) |
 | `=` | Bloque de piedra (plataforma sólida) |
+| `B` | Ladrillo: rebota al golpearlo; se rompe con el poder "punk" |
+| `?` | Bloque bonus con un diamante |
+| `D` | Diamante (100 puntos; 100 diamantes = vida extra) |
 | `P` | Punto de inicio del jugador |
 | `G` | Meta del nivel (se hace visible y funcional en la fase 7) |

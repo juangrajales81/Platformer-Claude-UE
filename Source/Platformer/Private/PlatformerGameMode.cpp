@@ -36,6 +36,17 @@ void APlatformerGameMode::HandleStartingNewPlayer_Implementation(APlayerControll
 	}
 }
 
+void APlatformerGameMode::AddScore(int32 Points)
+{
+	Score += Points;
+}
+
+void APlatformerGameMode::AddDiamond()
+{
+	++Diamonds;
+	AddScore(100);
+}
+
 void APlatformerGameMode::SpawnPlayer(AController* Controller)
 {
 	RestartPlayerAtTransform(Controller, FTransform(PlayerStartLocation));
