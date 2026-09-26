@@ -1,9 +1,7 @@
 #include "PlatformerGameMode.h"
 #include "PlatformerCharacter.h"
 #include "PlatformerEnvironment.h"
-#include "PlatformerVisuals.h"
-#include "Components/StaticMeshComponent.h"
-#include "Engine/StaticMeshActor.h"
+#include "Platformer.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 
@@ -48,12 +46,15 @@ void APlatformerGameMode::BuildWorld()
 	UWorld* World = GetWorld();
 	World->SpawnActor<APlatformerEnvironment>();
 
-	// Suelo provisional para probar el movimiento (se sustituye por el constructor de niveles).
-	FActorSpawnParameters Params;
-	AStaticMeshActor* Floor = World->SpawnActor<AStaticMeshActor>(FVector(1000.f, 0.f, -50.f), FRotator::ZeroRotator, Params);
-	UStaticMeshComponent* FloorMesh = Floor->GetStaticMeshComponent();
-	FloorMesh->SetMobility(EComponentMobility::Movable);
-	FloorMesh->SetStaticMesh(PlatformerVisuals::Cube());
-	Floor->SetActorScale3D(FVector(30.f, 4.f, 1.f));
-	PlatformerVisuals::Paint(FloorMesh, FLinearColor(0.3f, 0.6f, 0.2f));
+	LevelBuilder = World->SpawnActor<ALevelBuilder>();
+	CurrentLevelInfo = LevelBuilder->Build(CurrentLevel);
+	if (CurrentLevelInfo.bValid)
+	{
+		// El centro de la celda 'P' está a media celda del suelo; se sube un poco la cápsula.
+		PlayerStartLocation = CurrentLevelInfo.PlayerStart + FVector(0.f, 0.f, 10.f);
+	}
+	else
+	{
+		UE_LOG(LogPlatformer, Error, TEXT("No hay nivel %d: revisa Content/Levels"), CurrentLevel);
+	}
 }
