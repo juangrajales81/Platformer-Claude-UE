@@ -14,6 +14,8 @@ struct FBuiltLevelInfo
 	GENERATED_BODY()
 
 	bool bValid = false;
+	/** Texto del primer comentario del archivo, p. ej. "Nivel 1 - Las colinas del sueño". */
+	FString Title;
 	FVector PlayerStart = FVector::ZeroVector;
 	FVector GoalLocation = FVector::ZeroVector;
 	int32 Columns = 0;

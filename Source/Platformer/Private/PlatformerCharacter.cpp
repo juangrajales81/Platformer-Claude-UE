@@ -242,6 +242,12 @@ void APlatformerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	// Caer a un foso: por debajo del suelo del nivel (Z = 0) no hay nada.
+	if (!bDead && GetActorLocation().Z < -150.f)
+	{
+		Die(false);
+	}
+
 	if (InvulnerableTime > 0.f)
 	{
 		InvulnerableTime -= DeltaSeconds;
@@ -275,7 +281,7 @@ void APlatformerCharacter::BounceOffEnemy()
 	LaunchCharacter(FVector(0.f, 0.f, 750.f), false, true);
 }
 
-void APlatformerCharacter::Die()
+void APlatformerCharacter::Die(bool bJumpOut)
 {
 	if (bDead)
 	{
@@ -294,7 +300,7 @@ void APlatformerCharacter::Die()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	UCharacterMovementComponent* Movement = GetCharacterMovement();
 	Movement->SetMovementMode(MOVE_Falling);
-	Movement->Velocity = FVector(0.f, 0.f, 900.f);
+	Movement->Velocity = FVector(0.f, 0.f, bJumpOut ? 900.f : 0.f);
 	// La cámara se queda quieta mientras la jugadora cae.
 	const FVector BoomLocation = CameraBoom->GetComponentLocation();
 	CameraBoom->bEnableCameraLag = false;
@@ -303,6 +309,18 @@ void APlatformerCharacter::Die()
 
 	FTimerHandle Handle;
 	GetWorldTimerManager().SetTimer(Handle, this, &APlatformerCharacter::FinishDying, 2.f);
+}
+
+void APlatformerCharacter::CelebrateGoal()
+{
+	if (APlayerController* PC = Cast<APlayerController>(Controller))
+	{
+		DisableInput(PC);
+	}
+	InvulnerableTime = 0.f;
+	VisualRoot->SetVisibility(true, true);
+	GetCharacterMovement()->StopMovementImmediately();
+	LaunchCharacter(FVector(0.f, 0.f, 600.f), true, true);
 }
 
 void APlatformerCharacter::FinishDying()

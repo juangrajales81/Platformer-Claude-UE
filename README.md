@@ -27,3 +27,11 @@ project files* y compilar desde Visual Studio.
 | Moverse | A / D o ← / → | Stick izquierdo / cruceta |
 | Saltar (mantener = más alto) | Espacio, W o ↑ | A (botón inferior) |
 | Disparar (con poder de fuego) | F, J o Ctrl izq. | X (botón izquierdo) |
+
+## Reglas
+
+- Empiezas con 3 vidas y 300 segundos por nivel.
+- Cada diamante vale 100 puntos; con 100 diamantes ganas una vida.
+- Pisa a los búhos para eliminarlos. Si te tocan pierdes el poder o, sin poder, una vida.
+- Caer a un foso o quedarte sin tiempo también cuesta una vida.
+- Al llegar a la bandera, el tiempo sobrante se suma a los puntos (10 por segundo).

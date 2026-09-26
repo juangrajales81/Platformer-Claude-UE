@@ -1,12 +1,15 @@
 #include "LevelBuilder.h"
 #include "Platformer.h"
+#include "DreamBubble.h"
 #include "PlatformerBlocks.h"
 #include "PlatformerEnemy.h"
+#include "PlatformerGoal.h"
 #include "PlatformerPickups.h"
 #include "PlatformerVisuals.h"
 #include "Components/BoxComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Engine/CollisionProfile.h"
+#include "EngineUtils.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
@@ -84,6 +87,16 @@ void ALevelBuilder::Clear()
 		}
 	}
 	SpawnedActors.Reset();
+
+	// Objetos creados durante la partida que el constructor no registra
+	// (power-ups que salen de bloques, burbujas, escombros...).
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		if (It->IsA<APickup>() || It->IsA<ADreamBubble>() || It->IsA<ABlockDebris>())
+		{
+			It->Destroy();
+		}
+	}
 }
 
 FBuiltLevelInfo ALevelBuilder::Build(int32 LevelNumber)
@@ -103,7 +116,14 @@ FBuiltLevelInfo ALevelBuilder::Build(int32 LevelNumber)
 	TArray<FString> Lines;
 	for (const FString& Line : RawLines)
 	{
-		if (!Line.StartsWith(TEXT(";")))
+		if (Line.StartsWith(TEXT(";")))
+		{
+			if (Info.Title.IsEmpty())
+			{
+				Info.Title = Line.Mid(1).TrimStartAndEnd();
+			}
+		}
+		else
 		{
 			Lines.Add(Line.TrimEnd());
 		}
@@ -173,6 +193,7 @@ void ALevelBuilder::SpawnCellActor(TCHAR Cell, const FVector& Location, FBuiltLe
 		break;
 	case TEXT('G'):
 		Info.GoalLocation = Location;
+		SpawnLevelActor<APlatformerGoal>(Location);
 		break;
 	case TEXT('B'):
 		SpawnLevelActor<ABrickBlock>(Location);

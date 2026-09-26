@@ -35,8 +35,11 @@ public:
 	/** Golpe de un enemigo o de unos pinchos: pierde el poder o muere. */
 	void ReceiveDamage();
 
-	/** Muerte inmediata (p. ej. al caer a un foso). */
-	void Die();
+	/** Muerte: salta y cae fuera de la pantalla. Si cae a un foso, no salta. */
+	void Die(bool bJumpOut = true);
+
+	/** Al tocar la meta: deja de responder a los controles y da un saltito. */
+	void CelebrateGoal();
 
 	/** Pequeño salto automático tras pisar a un enemigo. */
 	void BounceOffEnemy();

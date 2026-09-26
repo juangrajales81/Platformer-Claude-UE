@@ -4,7 +4,8 @@ Los niveles son archivos de texto en `Content/Levels/LevelN.txt` (N = 1, 2, ...)
 Se cargan en orden; al terminar el último, la partida está ganada.
 
 - Cada carácter es una celda de 1×1 m. La **última** fila del archivo está a Z = 0.
-- Las líneas que empiezan por `;` son comentarios.
+- Las líneas que empiezan por `;` son comentarios. El **primer** comentario es el título
+  del nivel, que se muestra al empezarlo.
 - Las filas pueden tener distinta longitud; lo que falta se considera vacío.
 - Guarda el archivo en UTF-8.
 
@@ -22,4 +23,4 @@ Se cargan en orden; al terminar el último, la partida está ganada.
 | `E` | Enemigo (búho que patrulla y se gira en paredes y bordes) |
 | `^` | Pinchos (dañan al tocarlos) |
 | `P` | Punto de inicio del jugador |
-| `G` | Meta del nivel (se hace visible y funcional en la fase 7) |
+| `G` | Meta del nivel (mástil con bandera) |
