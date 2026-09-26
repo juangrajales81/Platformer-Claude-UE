@@ -19,3 +19,10 @@ Scripts\RunGame.bat    :: lanza el juego en una ventana, sin editor
 
 También puedes hacer clic derecho sobre `Platformer.uproject` → *Generate Visual Studio
 project files* y compilar desde Visual Studio.
+
+## Controles
+
+| Acción | Teclado | Mando |
+|--------|---------|-------|
+| Moverse | A / D o ← / → | Stick izquierdo / cruceta |
+| Saltar (mantener = más alto) | Espacio, W o ↑ | A (botón inferior) |

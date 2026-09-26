@@ -1,0 +1,158 @@
+#include "PlatformerCharacter.h"
+#include "PlatformerVisuals.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
+#include "InputModifiers.h"
+
+APlatformerCharacter::APlatformerCharacter()
+{
+	PrimaryActorTick.bCanEverTick = true;
+
+	GetCapsuleComponent()->InitCapsuleSize(30.f, 44.f);
+
+	// La rotación la decide el movimiento, no el mando.
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	Movement->bOrientRotationToMovement = true;
+	Movement->RotationRate = FRotator(0.f, 2000.f, 0.f);
+	Movement->MaxWalkSpeed = 600.f;
+	Movement->MaxAcceleration = 3000.f;
+	Movement->BrakingDecelerationWalking = 2500.f;
+	Movement->GroundFriction = 8.f;
+	Movement->GravityScale = 2.2f;
+	Movement->JumpZVelocity = 900.f;
+	Movement->AirControl = 0.85f;
+	Movement->BrakingDecelerationFalling = 600.f;
+	Movement->MaxStepHeight = 30.f;
+	Movement->SetWalkableFloorAngle(50.f);
+	// Juego 2.5D: el personaje nunca sale del plano XZ.
+	Movement->SetPlaneConstraintNormal(FVector(0.f, 1.f, 0.f));
+	Movement->SetPlaneConstraintEnabled(true);
+	Movement->bSnapToPlaneAtStart = true;
+
+	// Mantener pulsado el salto lo hace más alto (salto variable, como en los clásicos).
+	JumpMaxHoldTime = 0.22f;
+	JumpMaxCount = 1;
+
+	// Cámara lateral: mira hacia -Y, de modo que +X queda a la derecha de la pantalla.
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->SetUsingAbsoluteRotation(true);
+	CameraBoom->SetRelativeRotation(FRotator(-6.f, -90.f, 0.f));
+	CameraBoom->TargetArmLength = 1600.f;
+	CameraBoom->TargetOffset = FVector(0.f, 0.f, 180.f);
+	CameraBoom->bDoCollisionTest = false;
+	CameraBoom->bEnableCameraLag = true;
+	CameraBoom->CameraLagSpeed = 6.f;
+
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	Camera->bUsePawnControlRotation = false;
+	Camera->SetFieldOfView(50.f);
+
+	// Aspecto de la protagonista hecho con formas básicas (los pies están en Z = -44).
+	using namespace PlatformerVisuals;
+	VisualRoot = CreateDefaultSubobject<USceneComponent>(TEXT("VisualRoot"));
+	VisualRoot->SetupAttachment(RootComponent);
+	VisualRoot->SetRelativeLocation(FVector(0.f, 0.f, -44.f));
+
+	LegsMesh     = CreateMeshPart(this, VisualRoot, TEXT("Legs"),     Cylinder(), FVector(0.f, 0.f, 12.f),   FVector(0.22f, 0.3f, 0.24f));
+	DressMesh    = CreateMeshPart(this, VisualRoot, TEXT("Dress"),    Cone(),     FVector(0.f, 0.f, 42.f),   FVector(0.55f, 0.55f, 0.42f));
+	HeadMesh     = CreateMeshPart(this, VisualRoot, TEXT("Head"),     Sphere(),   FVector(2.f, 0.f, 74.f),   FVector(0.36f));
+	HairMesh     = CreateMeshPart(this, VisualRoot, TEXT("Hair"),     Sphere(),   FVector(-6.f, 0.f, 80.f),  FVector(0.40f, 0.44f, 0.38f));
+	LeftEyeMesh  = CreateMeshPart(this, VisualRoot, TEXT("LeftEye"),  Sphere(),   FVector(18.f, -7.f, 76.f), FVector(0.06f));
+	RightEyeMesh = CreateMeshPart(this, VisualRoot, TEXT("RightEye"), Sphere(),   FVector(18.f, 7.f, 76.f),  FVector(0.06f));
+}
+
+void APlatformerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	using namespace PlatformerVisuals;
+	Paint(LegsMesh,     FLinearColor(0.9f, 0.75f, 0.6f));
+	Paint(DressMesh,    FLinearColor(0.8f, 0.05f, 0.1f));
+	Paint(HeadMesh,     FLinearColor(1.f, 0.8f, 0.65f));
+	Paint(HairMesh,     FLinearColor(1.f, 0.8f, 0.1f));
+	Paint(LeftEyeMesh,  FLinearColor(0.02f, 0.05f, 0.3f));
+	Paint(RightEyeMesh, FLinearColor(0.02f, 0.05f, 0.3f));
+}
+
+void APlatformerCharacter::CreateInputObjects()
+{
+	if (MappingContext)
+	{
+		return;
+	}
+
+	MoveAction = NewObject<UInputAction>(this, TEXT("IA_Move"));
+	MoveAction->ValueType = EInputActionValueType::Axis1D;
+
+	JumpAction = NewObject<UInputAction>(this, TEXT("IA_Jump"));
+	JumpAction->ValueType = EInputActionValueType::Boolean;
+
+	MappingContext = NewObject<UInputMappingContext>(this, TEXT("IMC_Platformer"));
+
+	auto MapNegated = [this](const UInputAction* Action, const FKey& Key)
+	{
+		FEnhancedActionKeyMapping& Mapping = MappingContext->MapKey(Action, Key);
+		Mapping.Modifiers.Add(NewObject<UInputModifierNegate>(MappingContext));
+	};
+
+	MappingContext->MapKey(MoveAction, EKeys::D);
+	MappingContext->MapKey(MoveAction, EKeys::Right);
+	MappingContext->MapKey(MoveAction, EKeys::Gamepad_DPad_Right);
+	MapNegated(MoveAction, EKeys::A);
+	MapNegated(MoveAction, EKeys::Left);
+	MapNegated(MoveAction, EKeys::Gamepad_DPad_Left);
+	{
+		FEnhancedActionKeyMapping& Stick = MappingContext->MapKey(MoveAction, EKeys::Gamepad_LeftX);
+		Stick.Modifiers.Add(NewObject<UInputModifierDeadZone>(MappingContext));
+	}
+
+	MappingContext->MapKey(JumpAction, EKeys::SpaceBar);
+	MappingContext->MapKey(JumpAction, EKeys::W);
+	MappingContext->MapKey(JumpAction, EKeys::Up);
+	MappingContext->MapKey(JumpAction, EKeys::Gamepad_FaceButton_Bottom);
+}
+
+void APlatformerCharacter::NotifyControllerChanged()
+{
+	Super::NotifyControllerChanged();
+
+	CreateInputObjects();
+	if (const APlayerController* PC = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(MappingContext, 0);
+		}
+	}
+}
+
+void APlatformerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	CreateInputObjects();
+	if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlatformerCharacter::Move);
+		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		Input->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+	}
+}
+
+void APlatformerCharacter::Move(const FInputActionValue& Value)
+{
+	AddMovementInput(FVector::ForwardVector, Value.Get<float>());
+}

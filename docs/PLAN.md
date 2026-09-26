@@ -8,7 +8,7 @@ formas básicas del motor (`/Engine/BasicShapes`). Así cada fase es fácil de r
 | Fase | Contenido | Estado |
 |------|-----------|--------|
 | 1 | Estructura del proyecto (`.uproject`, módulo C++, targets, config, scripts) | ✅ |
-| 2 | Personaje jugable: movimiento lateral, salto variable, cámara 2.5D, controles | ⬜ |
+| 2 | Personaje jugable: movimiento lateral, salto variable, cámara 2.5D, controles, luz y cielo | ✅ |
 | 3 | Constructor de niveles a partir de mapas ASCII + iluminación y cielo | ⬜ |
 | 4 | Bloques interactivos (ladrillos, bloques bonus) y diamantes | ⬜ |
 | 5 | Enemigos: patrulla, pisotón y daño al jugador | ⬜ |
