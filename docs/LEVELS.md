@@ -17,6 +17,7 @@ Se cargan en orden; al terminar el último, la partida está ganada.
 | `=` | Bloque de piedra (plataforma sólida) |
 | `B` | Ladrillo: rebota al golpearlo; se rompe con el poder "punk" |
 | `?` | Bloque bonus con un diamante |
+| `*` | Bloque bonus con una bola de sueño (power-up) |
 | `D` | Diamante (100 puntos; 100 diamantes = vida extra) |
 | `E` | Enemigo (búho que patrulla y se gira en paredes y bordes) |
 | `^` | Pinchos (dañan al tocarlos) |

@@ -36,7 +36,13 @@ namespace PlatformerVisuals
 		{
 			return;
 		}
-		if (UMaterialInstanceDynamic* MID = Component->CreateDynamicMaterialInstance(0, BaseMaterial()))
+		// Se reutiliza el material dinámico si el componente ya tiene uno.
+		UMaterialInstanceDynamic* MID = Cast<UMaterialInstanceDynamic>(Component->GetMaterial(0));
+		if (!MID)
+		{
+			MID = Component->CreateDynamicMaterialInstance(0, BaseMaterial());
+		}
+		if (MID)
 		{
 			MID->SetVectorParameterValue(TEXT("Color"), Color);
 		}

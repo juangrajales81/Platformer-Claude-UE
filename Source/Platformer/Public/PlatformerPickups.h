@@ -65,3 +65,24 @@ protected:
 private:
 	bool bPopup = false;
 };
+
+/**
+ * Bola de sueño: cada una sube un nivel de poder.
+ * Nivel 1 "punk" rompe ladrillos; nivel 2 "fuego" además dispara burbujas.
+ */
+UCLASS()
+class PLATFORMER_API APowerUp : public APickup
+{
+	GENERATED_BODY()
+
+public:
+	APowerUp();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual bool OnCollected(APlatformerCharacter* Player) override;
+
+	/** Anillo que rodea la bola. */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UStaticMeshComponent> Ring;
+};

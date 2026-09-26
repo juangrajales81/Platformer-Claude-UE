@@ -164,11 +164,13 @@ void ABonusBlock::HitFromBelow(APlatformerCharacter* Player)
 		}
 		break;
 	case EBonusContent::PowerUp:
+		World->SpawnActor<APowerUp>(Above, FRotator::ZeroRotator);
 		break;
 	}
 
 	// Bloque gastado: color apagado y sin emblema.
-	PlatformerVisuals::Paint(Visual, FLinearColor(0.3f, 0.2f, 0.12f));
+	BaseColor = FLinearColor(0.3f, 0.2f, 0.12f);
+	PlatformerVisuals::Paint(Visual, BaseColor);
 	Emblem->SetVisibility(false);
 }
 

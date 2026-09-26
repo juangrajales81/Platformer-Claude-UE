@@ -26,3 +26,4 @@ project files* y compilar desde Visual Studio.
 |--------|---------|-------|
 | Moverse | A / D o ← / → | Stick izquierdo / cruceta |
 | Saltar (mantener = más alto) | Espacio, W o ↑ | A (botón inferior) |
+| Disparar (con poder de fuego) | F, J o Ctrl izq. | X (botón izquierdo) |

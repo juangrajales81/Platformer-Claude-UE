@@ -29,6 +29,9 @@ public:
 	bool IsDead() const { return bDead; }
 	bool IsInvulnerable() const { return InvulnerableTime > 0.f; }
 
+	/** Recoge una bola de sueño: sube un nivel de poder (máximo 2). */
+	void GainPower();
+
 	/** Golpe de un enemigo o de unos pinchos: pierde el poder o muere. */
 	void ReceiveDamage();
 
@@ -49,6 +52,12 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	void Move(const FInputActionValue& Value);
+
+	/** Dispara una burbuja de sueño si tiene el poder de fuego. */
+	void Fire();
+
+	/** Cambia el peinado y el vestido según el nivel de poder. */
+	void UpdatePowerVisuals();
 
 	/** Avisa al GameMode cuando termina la animación de muerte. */
 	void FinishDying();
@@ -77,6 +86,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Visual")
 	TObjectPtr<UStaticMeshComponent> HairMesh;
 
+	/** Pelo de punta del poder "punk". */
+	UPROPERTY(VisibleAnywhere, Category = "Visual")
+	TArray<TObjectPtr<UStaticMeshComponent>> PunkSpikes;
+
 	UPROPERTY(VisibleAnywhere, Category = "Visual")
 	TObjectPtr<UStaticMeshComponent> LeftEyeMesh;
 
@@ -92,6 +105,9 @@ protected:
 	/** Segundos restantes de invulnerabilidad tras recibir un golpe. */
 	float InvulnerableTime = 0.f;
 
+	/** Momento del último disparo, para limitar la cadencia. */
+	float LastFireTime = -1.f;
+
 	UPROPERTY(Transient)
 	TObjectPtr<UInputMappingContext> MappingContext;
 
@@ -100,4 +116,7 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UInputAction> JumpAction;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UInputAction> FireAction;
 };

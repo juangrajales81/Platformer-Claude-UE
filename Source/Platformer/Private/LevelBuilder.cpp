@@ -180,6 +180,12 @@ void ALevelBuilder::SpawnCellActor(TCHAR Cell, const FVector& Location, FBuiltLe
 	case TEXT('?'):
 		SpawnLevelActor<ABonusBlock>(Location);
 		break;
+	case TEXT('*'):
+		if (ABonusBlock* Block = SpawnLevelActor<ABonusBlock>(Location))
+		{
+			Block->Content = EBonusContent::PowerUp;
+		}
+		break;
 	case TEXT('D'):
 		SpawnLevelActor<ADiamond>(Location);
 		break;

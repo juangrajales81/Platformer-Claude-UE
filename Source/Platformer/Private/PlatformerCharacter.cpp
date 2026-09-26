@@ -1,4 +1,5 @@
 #include "PlatformerCharacter.h"
+#include "DreamBubble.h"
 #include "PlatformerBlocks.h"
 #include "PlatformerGameMode.h"
 #include "PlatformerVisuals.h"
@@ -75,6 +76,16 @@ APlatformerCharacter::APlatformerCharacter()
 	HairMesh     = CreateMeshPart(this, VisualRoot, TEXT("Hair"),     Sphere(),   FVector(-6.f, 0.f, 80.f),  FVector(0.40f, 0.44f, 0.38f));
 	LeftEyeMesh  = CreateMeshPart(this, VisualRoot, TEXT("LeftEye"),  Sphere(),   FVector(18.f, -7.f, 76.f), FVector(0.06f));
 	RightEyeMesh = CreateMeshPart(this, VisualRoot, TEXT("RightEye"), Sphere(),   FVector(18.f, 7.f, 76.f),  FVector(0.06f));
+
+	for (int32 i = 0; i < 4; ++i)
+	{
+		const float Angle = -45.f + i * 30.f;
+		const FVector Offset = FRotator(Angle, 0.f, 0.f).RotateVector(FVector(0.f, 0.f, 22.f));
+		UStaticMeshComponent* Spike = CreateMeshPart(this, VisualRoot, *FString::Printf(TEXT("PunkSpike%d"), i), Cone(),
+			FVector(-6.f, 0.f, 84.f) + Offset, FVector(0.12f, 0.12f, 0.25f), FRotator(Angle, 0.f, 0.f));
+		Spike->SetVisibility(false);
+		PunkSpikes.Add(Spike);
+	}
 }
 
 void APlatformerCharacter::BeginPlay()
@@ -85,9 +96,52 @@ void APlatformerCharacter::BeginPlay()
 	Paint(LegsMesh,     FLinearColor(0.9f, 0.75f, 0.6f));
 	Paint(DressMesh,    FLinearColor(0.8f, 0.05f, 0.1f));
 	Paint(HeadMesh,     FLinearColor(1.f, 0.8f, 0.65f));
-	Paint(HairMesh,     FLinearColor(1.f, 0.8f, 0.1f));
 	Paint(LeftEyeMesh,  FLinearColor(0.02f, 0.05f, 0.3f));
 	Paint(RightEyeMesh, FLinearColor(0.02f, 0.05f, 0.3f));
+	UpdatePowerVisuals();
+}
+
+void APlatformerCharacter::UpdatePowerVisuals()
+{
+	using namespace PlatformerVisuals;
+	const bool bPunk = PowerLevel >= 1;
+	const FLinearColor HairColor = bPunk ? FLinearColor(1.f, 0.35f, 0.7f) : FLinearColor(1.f, 0.8f, 0.1f);
+	const FLinearColor DressColor = PowerLevel >= 2 ? FLinearColor(0.45f, 0.1f, 0.9f) : FLinearColor(0.8f, 0.05f, 0.1f);
+
+	Paint(HairMesh, HairColor);
+	Paint(DressMesh, DressColor);
+	for (UStaticMeshComponent* Spike : PunkSpikes)
+	{
+		Spike->SetVisibility(bPunk);
+		Paint(Spike, HairColor);
+	}
+}
+
+void APlatformerCharacter::GainPower()
+{
+	PowerLevel = FMath::Min(PowerLevel + 1, 2);
+	UpdatePowerVisuals();
+}
+
+void APlatformerCharacter::Fire()
+{
+	const float Now = GetWorld()->GetTimeSeconds();
+	if (bDead || PowerLevel < 2 || Now - LastFireTime < 0.35f)
+	{
+		return;
+	}
+	LastFireTime = Now;
+
+	const float Direction = GetActorForwardVector().X >= 0.f ? 1.f : -1.f;
+	const FVector SpawnLocation = GetActorLocation() + FVector(Direction * 45.f, 0.f, 10.f);
+
+	FActorSpawnParameters Params;
+	Params.Owner = this;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	if (ADreamBubble* Bubble = GetWorld()->SpawnActor<ADreamBubble>(SpawnLocation, FRotator::ZeroRotator, Params))
+	{
+		Bubble->Fire(Direction);
+	}
 }
 
 void APlatformerCharacter::CreateInputObjects()
@@ -102,6 +156,9 @@ void APlatformerCharacter::CreateInputObjects()
 
 	JumpAction = NewObject<UInputAction>(this, TEXT("IA_Jump"));
 	JumpAction->ValueType = EInputActionValueType::Boolean;
+
+	FireAction = NewObject<UInputAction>(this, TEXT("IA_Fire"));
+	FireAction->ValueType = EInputActionValueType::Boolean;
 
 	MappingContext = NewObject<UInputMappingContext>(this, TEXT("IMC_Platformer"));
 
@@ -126,6 +183,11 @@ void APlatformerCharacter::CreateInputObjects()
 	MappingContext->MapKey(JumpAction, EKeys::W);
 	MappingContext->MapKey(JumpAction, EKeys::Up);
 	MappingContext->MapKey(JumpAction, EKeys::Gamepad_FaceButton_Bottom);
+
+	MappingContext->MapKey(FireAction, EKeys::F);
+	MappingContext->MapKey(FireAction, EKeys::J);
+	MappingContext->MapKey(FireAction, EKeys::LeftControl);
+	MappingContext->MapKey(FireAction, EKeys::Gamepad_FaceButton_Left);
 }
 
 void APlatformerCharacter::NotifyControllerChanged()
@@ -152,6 +214,7 @@ void APlatformerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlatformerCharacter::Move);
 		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		Input->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		Input->BindAction(FireAction, ETriggerEvent::Started, this, &APlatformerCharacter::Fire);
 	}
 }
 
@@ -199,6 +262,7 @@ void APlatformerCharacter::ReceiveDamage()
 	{
 		PowerLevel = 0;
 		InvulnerableTime = 2.f;
+		UpdatePowerVisuals();
 	}
 	else
 	{

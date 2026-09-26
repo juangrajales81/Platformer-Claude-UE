@@ -98,3 +98,32 @@ void ADiamond::Tick(float DeltaSeconds)
 		Mesh->AddRelativeRotation(FRotator(0.f, 720.f * DeltaSeconds, 0.f));
 	}
 }
+
+// ---------------------------------------------------------------------------
+// APowerUp
+
+APowerUp::APowerUp()
+{
+	Color = FLinearColor(1.f, 0.2f, 0.6f);
+	SpinSpeed = 120.f;
+
+	Mesh->SetRelativeScale3D(FVector(0.45f));
+	Ring = PlatformerVisuals::CreateMeshPart(this, Mesh, TEXT("Ring"), PlatformerVisuals::Cylinder(),
+		FVector::ZeroVector, FVector(1.35f, 1.35f, 0.12f), FRotator(0.f, 0.f, 70.f));
+}
+
+void APowerUp::BeginPlay()
+{
+	Super::BeginPlay();
+	PlatformerVisuals::Paint(Ring, FLinearColor(1.f, 0.9f, 0.2f));
+}
+
+bool APowerUp::OnCollected(APlatformerCharacter* Player)
+{
+	Player->GainPower();
+	if (APlatformerGameMode* GameMode = GetWorld()->GetAuthGameMode<APlatformerGameMode>())
+	{
+		GameMode->AddScore(500);
+	}
+	return true;
+}
