@@ -40,7 +40,7 @@ void APlatformerBackdrop::AddLayer(FName Name, UStaticMesh* Mesh, int32 Count, f
 	FBackdropLayer Layer;
 	Layer.Root = LayerRoot;
 	Layer.Follow = Follow;
-	Layers.Add(Layer);
+	ParallaxLayers.Add(Layer);
 }
 
 void APlatformerBackdrop::BeginPlay()
@@ -68,7 +68,7 @@ void APlatformerBackdrop::Tick(float DeltaSeconds)
 	}
 
 	const float CameraX = PC->PlayerCameraManager->GetCameraLocation().X;
-	for (const FBackdropLayer& Layer : Layers)
+	for (const FBackdropLayer& Layer : ParallaxLayers)
 	{
 		FVector Location = Layer.Root->GetRelativeLocation();
 		Location.X = CameraX * Layer.Follow;

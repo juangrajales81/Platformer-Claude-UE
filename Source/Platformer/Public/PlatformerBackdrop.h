@@ -39,7 +39,7 @@ protected:
 		const FVector& Scale, float Follow, TArray<TObjectPtr<UStaticMeshComponent>>& OutParts);
 
 	UPROPERTY(VisibleAnywhere)
-	TArray<FBackdropLayer> Layers;
+	TArray<FBackdropLayer> ParallaxLayers;
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<TObjectPtr<UStaticMeshComponent>> Hills;
