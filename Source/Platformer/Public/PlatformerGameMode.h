@@ -10,6 +10,7 @@ class APlatformerCharacter;
 UENUM()
 enum class EPlatformerPhase : uint8
 {
+	Title,
 	Playing,
 	LevelComplete,
 	GameOver,
@@ -31,6 +32,9 @@ public:
 
 	/** Lo llama la jugadora al terminar su animación de muerte. */
 	virtual void OnPlayerDied(APlatformerCharacter* Player);
+
+	/** Desde la pantalla de título: empieza a contar el tiempo y a jugar. */
+	void StartGame();
 
 	/** Lo llama la meta cuando la jugadora la alcanza. */
 	void OnGoalReached(APlatformerCharacter* Player);
@@ -63,7 +67,9 @@ protected:
 	void SpawnPlayer(AController* Controller);
 
 	void GoToNextLevel();
-	void RestartGame();
+
+	/** Reinicia vidas y puntos y vuelve a la pantalla de título con el nivel 1. */
+	void ReturnToTitle();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Rules")
 	int32 StartingLives = 3;
@@ -81,7 +87,7 @@ protected:
 	FBuiltLevelInfo CurrentLevelInfo;
 	FVector PlayerStartLocation = FVector(0.f, 0.f, 200.f);
 
-	EPlatformerPhase Phase = EPlatformerPhase::Playing;
+	EPlatformerPhase Phase = EPlatformerPhase::Title;
 	int32 CurrentLevel = 1;
 	int32 Lives = 3;
 	int32 Score = 0;

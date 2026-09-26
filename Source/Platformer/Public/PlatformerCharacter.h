@@ -56,6 +56,12 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 
+	/** Salta, o empieza la partida si se está en la pantalla de título. */
+	void JumpPressed();
+
+	/** Solo se juega en la fase Playing (no en el título ni al completar un nivel). */
+	bool IsGameplayActive() const;
+
 	/** Dispara una burbuja de sueño si tiene el poder de fuego. */
 	void Fire();
 

@@ -126,7 +126,7 @@ void APlatformerCharacter::GainPower()
 void APlatformerCharacter::Fire()
 {
 	const float Now = GetWorld()->GetTimeSeconds();
-	if (bDead || PowerLevel < 2 || Now - LastFireTime < 0.35f)
+	if (bDead || PowerLevel < 2 || Now - LastFireTime < 0.35f || !IsGameplayActive())
 	{
 		return;
 	}
@@ -212,15 +212,38 @@ void APlatformerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlatformerCharacter::Move);
-		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		Input->BindAction(JumpAction, ETriggerEvent::Started, this, &APlatformerCharacter::JumpPressed);
 		Input->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		Input->BindAction(FireAction, ETriggerEvent::Started, this, &APlatformerCharacter::Fire);
 	}
 }
 
+bool APlatformerCharacter::IsGameplayActive() const
+{
+	const APlatformerGameMode* GameMode = GetWorld()->GetAuthGameMode<APlatformerGameMode>();
+	return !GameMode || GameMode->GetPhase() == EPlatformerPhase::Playing;
+}
+
 void APlatformerCharacter::Move(const FInputActionValue& Value)
 {
-	AddMovementInput(FVector::ForwardVector, Value.Get<float>());
+	if (IsGameplayActive())
+	{
+		AddMovementInput(FVector::ForwardVector, Value.Get<float>());
+	}
+}
+
+void APlatformerCharacter::JumpPressed()
+{
+	APlatformerGameMode* GameMode = GetWorld()->GetAuthGameMode<APlatformerGameMode>();
+	if (GameMode && GameMode->GetPhase() == EPlatformerPhase::Title)
+	{
+		GameMode->StartGame();
+		return;
+	}
+	if (IsGameplayActive())
+	{
+		Jump();
+	}
 }
 
 void APlatformerCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
@@ -259,7 +282,7 @@ void APlatformerCharacter::Tick(float DeltaSeconds)
 
 void APlatformerCharacter::ReceiveDamage()
 {
-	if (bDead || IsInvulnerable())
+	if (bDead || IsInvulnerable() || !IsGameplayActive())
 	{
 		return;
 	}

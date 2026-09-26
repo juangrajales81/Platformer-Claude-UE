@@ -3,6 +3,10 @@
 Pequeño juego de plataformas de desplazamiento lateral, escrito íntegramente en C++.
 Consulta el plan por fases en [docs/PLAN.md](docs/PLAN.md).
 
+No usa assets binarios: los niveles son archivos de texto en `Content/Levels/`
+(formato en [docs/LEVELS.md](docs/LEVELS.md)) y los gráficos se construyen con las formas
+básicas del motor. Para crear un nivel nuevo basta con añadir `Level3.txt`.
+
 ## Requisitos
 
 - Unreal Engine 5.8 (instalado en `D:\EPIC\UE_5.8`)

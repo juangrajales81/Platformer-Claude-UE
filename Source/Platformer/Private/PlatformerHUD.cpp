@@ -43,6 +43,11 @@ void APlatformerHUD::DrawHUD()
 
 	switch (GameMode->GetPhase())
 	{
+	case EPlatformerPhase::Title:
+		DrawCenterBanner(TEXT("DREAM PLATFORMER"), TEXT("Pulsa ESPACIO o A para empezar"), Yellow, true);
+		DrawShadowedText(TEXT("Moverse: A/D o flechas   Saltar: Espacio   Disparar: F"),
+			Canvas->ClipX * 0.5f, Canvas->ClipY * 0.75f, 0.9f * UIScale, FLinearColor(0.8f, 0.8f, 0.9f), true);
+		break;
 	case EPlatformerPhase::Playing:
 		// Rótulo de presentación durante los primeros segundos del nivel.
 		if (GameMode->GetLevelElapsedTime() < 2.5f)

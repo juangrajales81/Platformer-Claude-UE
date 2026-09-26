@@ -14,4 +14,11 @@ formas básicas del motor (`/Engine/BasicShapes`). Así cada fase es fácil de r
 | 5 | Enemigos: patrulla, pisotón y daño al jugador; pinchos | ✅ |
 | 6 | Power-ups: "punk" (rompe ladrillos) y "fuego" (dispara burbujas) | ✅ |
 | 7 | Reglas de juego y HUD: vidas, puntos, tiempo, muerte, meta, game over | ✅ |
-| 8 | Pulido: varios niveles, fondo con parallax, pantalla de título | ⬜ |
+| 8 | Pulido: segundo nivel, fondo con parallax, pantalla de título | ✅ |
+
+## Ideas para seguir
+
+- Sonido y música (requiere importar assets `.wav` en `Content/`).
+- Enemigos nuevos (saltarines, voladores) y plataformas móviles.
+- Puntos de control a mitad de nivel.
+- Sustituir las formas básicas por sprites (Paper2D) o modelos propios.

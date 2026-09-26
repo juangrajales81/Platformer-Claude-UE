@@ -1,4 +1,5 @@
 #include "PlatformerGameMode.h"
+#include "PlatformerBackdrop.h"
 #include "PlatformerCharacter.h"
 #include "PlatformerEnvironment.h"
 #include "PlatformerHUD.h"
@@ -19,6 +20,7 @@ void APlatformerGameMode::StartPlay()
 {
 	Lives = StartingLives;
 	BuildWorld();
+	Phase = EPlatformerPhase::Title;
 	bWorldReady = true;
 
 	Super::StartPlay();
@@ -46,6 +48,7 @@ void APlatformerGameMode::BuildWorld()
 {
 	UWorld* World = GetWorld();
 	World->SpawnActor<APlatformerEnvironment>();
+	World->SpawnActor<APlatformerBackdrop>();
 	LevelBuilder = World->SpawnActor<ALevelBuilder>();
 	LoadLevel(CurrentLevel);
 }
@@ -66,7 +69,17 @@ void APlatformerGameMode::LoadLevel(int32 LevelNumber)
 
 	TimeLeft = LevelTimeLimit;
 	LevelStartTime = GetWorld()->GetTimeSeconds();
+}
+
+void APlatformerGameMode::StartGame()
+{
+	if (Phase != EPlatformerPhase::Title)
+	{
+		return;
+	}
 	Phase = EPlatformerPhase::Playing;
+	TimeLeft = LevelTimeLimit;
+	LevelStartTime = GetWorld()->GetTimeSeconds();
 }
 
 void APlatformerGameMode::SpawnPlayer(AController* Controller)
@@ -136,7 +149,7 @@ void APlatformerGameMode::OnPlayerDied(APlatformerCharacter* Player)
 
 	Phase = EPlatformerPhase::GameOver;
 	Player->Destroy();
-	GetWorldTimerManager().SetTimer(PhaseTimer, this, &APlatformerGameMode::RestartGame, 4.f);
+	GetWorldTimerManager().SetTimer(PhaseTimer, this, &APlatformerGameMode::ReturnToTitle, 4.f);
 }
 
 void APlatformerGameMode::OnGoalReached(APlatformerCharacter* Player)
@@ -159,20 +172,22 @@ void APlatformerGameMode::GoToNextLevel()
 	{
 		LoadLevel(CurrentLevel + 1);
 		RespawnPlayers();
+		Phase = EPlatformerPhase::Playing;
 		return;
 	}
 
 	Phase = EPlatformerPhase::Victory;
-	GetWorldTimerManager().SetTimer(PhaseTimer, this, &APlatformerGameMode::RestartGame, 8.f);
+	GetWorldTimerManager().SetTimer(PhaseTimer, this, &APlatformerGameMode::ReturnToTitle, 8.f);
 }
 
-void APlatformerGameMode::RestartGame()
+void APlatformerGameMode::ReturnToTitle()
 {
 	Lives = StartingLives;
 	Score = 0;
 	Diamonds = 0;
 	LoadLevel(1);
 	RespawnPlayers();
+	Phase = EPlatformerPhase::Title;
 }
 
 void APlatformerGameMode::AddScore(int32 Points)
